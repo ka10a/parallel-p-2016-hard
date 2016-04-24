@@ -6,6 +6,9 @@ import temp
 fout = open("top-of-150-users.html", "w", encoding='utf-8')
 f_users = codecs.open('Users.xml', encoding='utf-8')
 f_comm = codecs.open('Comments.xml', encoding='utf-8')
+f_posts = codecs.open('Posts.xml', encoding='utf-8')
+#fout2 = open("test2.txt", "w", encoding='utf-8')
+TOP_USERS = 150
 
 
 class User:
@@ -84,16 +87,56 @@ def read_users():
     return users
 
 
-def read_comments(users):
+def read_posts():
+    posts = set()
+    for post in f_posts.readlines():
+        categories_post = del_space(post)
+        score = None
+        post_id = None
+        cnt = None
+
+        for elem in categories_post:
+            if elem.startswith('Score='):
+                score = elem[7:-1]
+
+                if score.isdigit():
+                    score = int(score)
+                else:
+                    score = None
+                    break
+
+            if elem.startswith('Id='):
+                post_id = elem[4:-1]
+
+            if elem.startswith('CommentCount='):
+                if elem[14:-1] == "0":
+                    continue
+                else:
+                    cnt = True
+
+        if (score is None) or (cnt is None) or (score <= 20):
+            break
+
+        posts.add(post_id)
+
+    return posts
+
+
+def read_comments(users, posts):
     for new_comm in f_comm.readlines():
-        categories_comm= del_space(new_comm)
+        categories_comm = del_space(new_comm)
         id_user = None
+        post_id = None
 
         for elem in categories_comm:
-            if elem.startswith('UserId'):
+            if elem.startswith('UserId='):
                 id_user = int(elem[8:-1])
 
-        if id_user in users:
+            if elem.startswith('PostId='):
+                post_id = int(elem[8:-1])
+
+
+        if (id_user in users) and (post_id in posts):
             users[id_user].comm += 1
 
     return users
@@ -103,7 +146,7 @@ def generate_table(users, rate):
     print(temp.STYLE_TEMPLATE, file=fout)
     print(temp.TABLE_TEMPLATE, file=fout)
 
-    for i in range(150):
+    for i in range(TOP_USERS):
         table_user = users[rate[i][1]]
         print("<tr>", file=fout)
         print("<th>{0}</th>".format(i + 1), file=fout)
@@ -114,8 +157,9 @@ def generate_table(users, rate):
 
     print(temp.TABLE_END, file=fout)
 
-
-_users = read_comments(read_users())
+_posts = read_posts()
+print(len(_posts))
+_users = read_comments(read_users(), posts)
 
 _rate = []
 for id_us in _users.keys():
