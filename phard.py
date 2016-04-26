@@ -7,9 +7,7 @@ fout = open("top-of-150-users.html", "w", encoding='utf-8')
 f_users = codecs.open('Users.xml', encoding='utf-8')
 f_comm = codecs.open('Comments.xml', encoding='utf-8')
 f_posts = codecs.open('Posts.xml', encoding='utf-8')
-#fout2 = open("test2.txt", "w", encoding='utf-8')
-fout5 = open("test5.txt", "w", encoding='utf-8')
-TOP_USERS = 150
+TOP_USERS = 85
 
 
 class User:
@@ -90,23 +88,15 @@ def read_users():
 
 def read_posts():
     posts = set()
+
     for post in f_posts.readlines():
-        #print(post, file=fout5)
         categories_post = del_space(post)
         score = None
         post_id = None
-        #cnt = None
-        #k = 0
 
         for elem in categories_post:
-            #print(elem, file=fout5)
-            #k += 1
-            #if k == 1000:
-                #return posts
-
             if elem.startswith('Score='):
                 score = elem[7:-1]
-                #print(score)
 
                 if score.isdigit():
                     score = int(score)
@@ -117,7 +107,13 @@ def read_posts():
             if elem.startswith('Id='):
                 post_id = elem[4:-1]
 
-        if (score is None) or (score <= 20):
+                if post_id.isdigit():
+                    post_id = int(post_id)
+                else:
+                    post_id = None
+                    break
+
+        if (score is None) or (score <= 20) or (post_id is None):
             continue
 
         posts.add(post_id)
@@ -128,19 +124,18 @@ def read_posts():
 def read_comments(users, posts):
     for new_comm in f_comm.readlines():
         categories_comm = del_space(new_comm)
-        id_user = None
+        user_id = None
         post_id = None
 
         for elem in categories_comm:
             if elem.startswith('UserId='):
-                id_user = int(elem[8:-1])
+                user_id = int(elem[8:-1])
 
             if elem.startswith('PostId='):
                 post_id = int(elem[8:-1])
 
-
-        if (id_user in users) and (post_id in posts):
-            users[id_user].comm += 1
+        if (user_id in users.keys()) and (post_id in posts):
+            users[user_id].comm += 1
 
     return users
 
@@ -161,9 +156,7 @@ def generate_table(users, rate):
     print(temp.TABLE_END, file=fout)
 
 
-_posts = read_posts()
-print(len(_posts))
-_users = read_comments(read_users(), _posts)
+_users = read_comments(read_users(), read_posts())
 
 _rate = []
 for id_us in _users.keys():
