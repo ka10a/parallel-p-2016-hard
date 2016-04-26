@@ -3,7 +3,7 @@ import codecs
 import temp
 
 
-fout = open("top-of-150-users.html", "w", encoding='utf-8')
+fout = open("top-of-85-users.html", "w", encoding='utf-8')
 f_users = codecs.open('Users.xml', encoding='utf-8')
 f_comm = codecs.open('Comments.xml', encoding='utf-8')
 f_posts = codecs.open('Posts.xml', encoding='utf-8')
