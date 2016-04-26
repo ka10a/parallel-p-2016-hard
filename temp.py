@@ -25,7 +25,7 @@
 TABLE_TEMPLATE = """
                 <body style="padding: 0 20%">
                 <div style="padding: 0 16%">
-                <h1 style="padding: 0 20%">Top of 150 users</h1>
+                <h1 style="padding: 0 20%">Top of 85 users</h1>
                 <table>
                 <tr>
                     <th><h2>#</h2></th>
